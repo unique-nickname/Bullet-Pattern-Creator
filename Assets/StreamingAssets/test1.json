@@ -1,0 +1,31 @@
+{
+	"info":
+	{
+		"pattern_name":"test-pattern",
+		"creator":"Ice",
+		"date_of_creation":"2025/09/19",
+		"description": "A simple test pattern with two straight bullets.",
+		"end_time":5000
+	},
+	"bullets":
+	[
+		{
+			"type":"straight",
+			"direction":300,
+			"speed":3,
+			"scale":0.5,
+			"start_position": { "x":-9, "y":5 },
+			"spawn_time":0,
+			"life_time":2000
+		},
+		{
+			"type":"straight",
+			"direction":315,
+			"speed":3,
+			"scale":0.5,
+			"start_position": { "x":-8, "y":5 },
+			"spawn_time":1000,
+			"life_time":2000
+		}
+	]
+}
