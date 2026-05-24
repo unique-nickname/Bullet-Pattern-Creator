@@ -73,7 +73,7 @@ public class BulletPatternScrubber : MonoBehaviour
         return t >= bullet.spawn_time && t <= bullet.spawn_time + bullet.life_time;
     }
 
-    private Vector2 GetBulletPosition(BulletEvent bullet, int t)
+    public Vector2 GetBulletPosition(BulletEvent bullet, int t)
     {
         float elapsed = (t - bullet.spawn_time) / 1000f;
         if (elapsed < 0f)

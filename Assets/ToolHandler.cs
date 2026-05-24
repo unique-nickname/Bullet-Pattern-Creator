@@ -38,6 +38,12 @@ public class ToolHandler : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.D)) {
             DuplicateBullet();
         }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C)) {
+            CopyBullet();
+        }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.V)) {
+            PasteBullet();
+        }
 
         if (selectedBullet == null)
             return;
@@ -82,6 +88,7 @@ public class ToolHandler : MonoBehaviour
         scrubber.RefreshPreview();
         if (previewBullet != null) {
             previewBullet.transform.GetChild(0).gameObject.SetActive(false);
+            previewBullet.transform.GetChild(1).gameObject.SetActive(false);
         }
         previewBullet = GetPreviewFromEvent(selectedBullet).GetComponent<Collider2D>();
         if (previewBullet != null) {
@@ -111,6 +118,7 @@ public class ToolHandler : MonoBehaviour
     {
         if (previewBullet != null) {
             previewBullet.transform.GetChild(0).gameObject.SetActive(false);
+            previewBullet.transform.GetChild(1).gameObject.SetActive(false);
         }
         previewBullet = Physics2D.OverlapPoint(position, LayerMask.GetMask("PreviewWorld"), 0f, 0f);
         if (previewBullet == null) {
@@ -152,6 +160,7 @@ public class ToolHandler : MonoBehaviour
                 selectedBullet.spawn_time = (int)value;
                 break;
         }
+        scrubber.ClearAllPreviewBullets();
         scrubber.RefreshPreview();
     }
 
@@ -160,12 +169,14 @@ public class ToolHandler : MonoBehaviour
         if (selectedBullet == null)
             return;
 
+        Vector2 newPosition = scrubber.GetBulletPosition(selectedBullet, (int)timelineRenderer.playheadTimeMs);
+
         BulletEvent newBullet = new BulletEvent {
             type = selectedBullet.type,
             direction = selectedBullet.direction,
             speed = selectedBullet.speed,
             scale = selectedBullet.scale,
-            start_position = selectedBullet.start_position,
+            start_position = newPosition,
             spawn_time = (int)timelineRenderer.playheadTimeMs,
             life_time = selectedBullet.life_time
         };
@@ -178,9 +189,44 @@ public class ToolHandler : MonoBehaviour
             previewBullet.transform.GetChild(0).gameObject.SetActive(false);
         }
         previewBullet = GetPreviewFromEvent(selectedBullet).GetComponent<Collider2D>();
+        previewBullet.transform.GetChild(0).gameObject.SetActive(true);
+        previewBullet.transform.GetChild(1).gameObject.SetActive(true);
+    }
+
+    void CopyBullet()
+    {
+        if (selectedBullet == null)
+            return;
+
+        Vector2 newPosition = scrubber.GetBulletPosition(selectedBullet, (int)timelineRenderer.playheadTimeMs);
+
+        savedBullet = new BulletEvent {
+            type = selectedBullet.type,
+            direction = selectedBullet.direction,
+            speed = selectedBullet.speed,
+            scale = selectedBullet.scale,
+            start_position = newPosition,
+            spawn_time = (int)timelineRenderer.playheadTimeMs,
+            life_time = selectedBullet.life_time
+        };
+    }
+
+    void PasteBullet()
+    {
+        if (savedBullet == null)
+            return;
+
+        patternData.bullets.Add(savedBullet);
+        patternData.bullets.Sort((a, b) => a.spawn_time.CompareTo(b.spawn_time));
+        selectedBullet = savedBullet;
+        inspectorUI.SetFields(selectedBullet);
+        scrubber.RefreshPreview();
         if (previewBullet != null) {
-            previewBullet.transform.GetChild(0).gameObject.SetActive(true);
+            previewBullet.transform.GetChild(0).gameObject.SetActive(false);
         }
+        previewBullet = GetPreviewFromEvent(selectedBullet).GetComponent<Collider2D>();
+        previewBullet.transform.GetChild(0).gameObject.SetActive(true);
+        previewBullet.transform.GetChild(1).gameObject.SetActive(true);
     }
 
     // -- Helpers --
